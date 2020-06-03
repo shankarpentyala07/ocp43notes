@@ -1,0 +1,2 @@
+oc get nodes
+oc debug node/<node name or ip address> (it opens a shell and you can run commands there)
