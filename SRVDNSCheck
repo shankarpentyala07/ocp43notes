@@ -1,0 +1,10 @@
+MM-MBP15-04M:~ mmarakov$ nslookup
+> set type=SRV
+> _etcd-server-ssl._tcp.cp4ds.pbm.ihost.com
+Server:		10.10.1.10
+Address:	10.10.1.10#53
+Non-authoritative answer:
+_etcd-server-ssl._tcp.cp4ds.pbm.ihost.com	service = 0 10 2380 etcd-1.cp4ds.pbm.ihost.com.pbm.ihost.com.
+_etcd-server-ssl._tcp.cp4ds.pbm.ihost.com	service = 0 10 2380 etcd-0.cp4ds.pbm.ihost.com.pbm.ihost.com.
+_etcd-server-ssl._tcp.cp4ds.pbm.ihost.com	service = 0 10 2380 etcd-2.cp4ds.pbm.ihost.com.pbm.ihost.com.
+Authoritative answers can be found from:
