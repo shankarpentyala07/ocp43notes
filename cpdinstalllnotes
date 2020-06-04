@@ -1,0 +1,40 @@
+for node in $(oc get nodes | grep worker| awk {'print $1'}); do echo $node; ssh core@$node 'ulimit -n'; done
+sudo semanage fcontext -a -s system_u -t etc_t "/etc/sysctl.d/42-cp4d.conf
+ sudo restorecon -F /etc/sysctl.d/42-cp4d.conf
+
+journalctl -lu atomic-openshift-node | grep -i notready 
+journalctl --since "36 hours ago" | grep -i notready
+
+
+
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  generation: 1
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 50-worker-cp4d-sysctl
+  resourceVersion: "926196"
+  selfLink: /apis/machineconfiguration.openshift.io/v1/machineconfigs/50-worker-cp4d-sysctl
+spec:
+  config:
+    ignition:
+      version: 2.2.0
+    storage:
+      files:
+      - contents:
+          source: data:,vm.max_map_count%20%3D%20262144%0Akernel.msgmax%20%3D%2065536%0Akernel.msgmnb%20%3D%2065536%0Akernel.msgmni%20%3D%2032768%0Akernel.shmmax%20%3D%2021474836480%0Akernel.shmall%20%3D%2010485760%0Akernel.shmmni%20%3D%205120%0Akernel.sem%20%3D%20250%201024000%20100%2016384%0A
+        filesystem: root
+        mode: 420
+        path: /etc/sysctl.d/50-worker-cp4d-sysctl.conf
+
+
+
+oc create -f mc1 
+
+oc get mc ( Machine Config)
+oc get nodes
+oc get mcp (Machine config pool)
+
+oc get mc -o name --sort-by=.metadata.creationTimestamp | grep rendered-worker | tail -n1
+
