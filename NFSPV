@@ -1,0 +1,13 @@
+[root@revenge-inf ~]# cat image-pv.yaml 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: registry-storage
+spec:
+  capacity:
+    storage: 200Gi
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /data/registry
+    server: 10.17.64.129
