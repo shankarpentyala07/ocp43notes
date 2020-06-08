@@ -7,6 +7,8 @@ oc adm policy add-cluster-role-to-user nfs-client-provisioner-runner system:serv
 
 3. Edit Storage class to reclaimPolicy: Retain
 
+oc patch storageclass managed-nfs-storage -p '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "true"}}}'
+
 2. created a pvc with below content
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -21,6 +23,7 @@ spec:
       storage: 200Gi
   storageClassName: managed-nfs-storage
   
+
 3. oc edit configs.imageregistry.operator.openshift.io
 Changed :
 a) managementState: Removed -> managementState: Managed
@@ -31,8 +34,10 @@ b) storage:
          pvc:
            claim
            
-4. oc get pods -n openshift-image-registry
+4. oc get pods -n openshift-image-registry cluster
 You can verify the image-registry pod got created and claimed the pvc  image-registry-storage 
+
+Expose Registry: oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
 
 
 NFS Provisioner Setup:
