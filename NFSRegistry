@@ -5,6 +5,8 @@ https://medium.com/faun/openshift-dynamic-nfs-persistent-volume-using-nfs-client
 
 oc adm policy add-cluster-role-to-user nfs-client-provisioner-runner system:serviceaccount:default:nfs-client-provisioner
 
+3. Edit Storage class to reclaimPolicy: Retain
+
 2. created a pvc with below content
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -16,7 +18,7 @@ spec:
   - ReadWriteMany
   resources:
     requests:
-      storage: 100Gi
+      storage: 200Gi
   storageClassName: managed-nfs-storage
   
 3. oc edit configs.imageregistry.operator.openshift.io
@@ -36,3 +38,10 @@ You can verify the image-registry pod got created and claimed the pvc  image-reg
 NFS Provisioner Setup:
 
 https://github.com/ekambaraml/nfs-ocp43/blob/master/README.md
+
+
+status:
+  conditions:
+  - lastTransitionTime: "2020-06-08T02:53:52Z"
+    message: 'Unable to apply resources: unable to sync storage configuration: persistentvolumeclaims
+      "image-registry-storage" not found'
