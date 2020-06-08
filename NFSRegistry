@@ -1,0 +1,36 @@
+https://docs.openshift.com/container-platform/4.3/registry/configuring_registry_storage/configuring-registry-storage-baremetal.html#configuring-registry-storage-baremetal
+
+1.Created nfs storage class:
+https://medium.com/faun/openshift-dynamic-nfs-persistent-volume-using-nfs-client-provisioner-fcbb8c9344e
+
+2. created a pvc with below content
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-registry-storage
+  namespace: openshift-image-registry
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: managed-nfs-storage
+  
+3. oc edit configs.imageregistry.operator.openshift.io
+Changed :
+a) managementState: Removed -> managementState: Managed
+b) storage:
+         emptyDir: {}
+   to
+    storage:
+         pvc:
+           claim
+           
+4. oc get pods -n openshift-image-registry
+You can verify the image-registry pod got created and claimed the pvc  image-registry-storage 
+
+
+NFS Provisioner Setup:
+
+https://github.com/ekambaraml/nfs-ocp43/blob/master/README.md
