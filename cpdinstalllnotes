@@ -38,3 +38,32 @@ oc get mcp (Machine config pool)
 
 oc get mc -o name --sort-by=.metadata.creationTimestamp | grep rendered-worker | tail -n1
 
+python3 -c "import sys, urllib.parse; print(urllib.parse.unquote(sys.argv[1]))" $(oc get $(oc get mc -o name --sort-by=.metadata.creationTimestamp | grep rendered-worker| tail -n1 ) -o jsonpath='{.spec.config.storage.files[?(@.path=="/etc/crio/crio.conf")].contents.source}' | awk -F" " '{print $1}' | sed 's/data:,//g')  > /tmp/crio.conf
+sed -i 's/pids_limit.*/pids_limit = 12290\ndefault_ulimits = [\n\ \ \ \ "nofile=66560:66560",\n]/g' /tmp/crio.conf
+crio_conf=$(cat /tmp/crio.conf | python3 -c "import sys, urllib.parse; print(urllib.parse.quote(''.join(sys.stdin.readlines())))")
+
+
+cat << EOF > /tmp/51-worker-cp4d-crio-conf.yaml
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+ labels:
+   machineconfiguration.openshift.io/role: worker
+ name: 51-worker-cp4d-crio-conf
+spec:
+ config:
+   ignition:
+     version: 2.2.0
+   storage:
+     files:
+     - contents:
+         source: data:,${crio_conf}
+       filesystem: root
+       mode: 0644
+       path: /etc/crio/crio.conf
+EOF
+
+oc create -f /tmp/51-worker-cp4d-crio-conf.yaml
+
+https://github.ibm.com/PrivateCloud-analytics/Zen/issues/15790
+
