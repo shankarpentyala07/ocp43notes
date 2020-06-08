@@ -3,6 +3,8 @@ https://docs.openshift.com/container-platform/4.3/registry/configuring_registry_
 1.Created nfs storage class:
 https://medium.com/faun/openshift-dynamic-nfs-persistent-volume-using-nfs-client-provisioner-fcbb8c9344e
 
+oc adm policy add-cluster-role-to-user nfs-client-provisioner-runner system:serviceaccount:default:nfs-client-provisioner
+
 2. created a pvc with below content
 apiVersion: v1
 kind: PersistentVolumeClaim
