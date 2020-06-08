@@ -24,7 +24,7 @@ spec:
   storageClassName: managed-nfs-storage
   
 
-3. oc edit configs.imageregistry.operator.openshift.io
+3. oc edit configs.imageregistry.operator.openshift.io cluster
 Changed :
 a) managementState: Removed -> managementState: Managed
 b) storage:
@@ -34,7 +34,7 @@ b) storage:
          pvc:
            claim
            
-4. oc get pods -n openshift-image-registry cluster
+4. oc get pods -n openshift-image-registry 
 You can verify the image-registry pod got created and claimed the pvc  image-registry-storage 
 
 Expose Registry: oc patch configs.imageregistry.operator.openshift.io/cluster --patch '{"spec":{"defaultRoute":true}}' --type=merge
