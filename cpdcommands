@@ -1,0 +1,2 @@
+./cpd-linux adm --repo repo.yaml --assembly lite -n cpd --apply
+
