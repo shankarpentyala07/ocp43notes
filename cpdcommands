@@ -1,2 +1,5 @@
 ./cpd-linux adm --repo repo.yaml --assembly lite -n cpd --apply
 
+./cpd-linux -a lite -n cpd  -c managed-nfs-storage  --transfer-image-to=default-route-openshift-image-registry.apps.cp4ds.pbm.ihost.com/cpd  -r ./repo.yaml --target-registry-username=kubeadmin  --target-registry-password=$(oc whoami -t) --insecure-skip-tls-verify --cluster-pull-prefix=image-registry.openshift-image-registry.svc:5000/cpd --accept-all-licenses --insecure-skip-tls-verify
+
+./cpd-linux -a lite -n cpd  -c portworx-shared-gp3 --transfer-image-to=default-route-openshift-image-registry.apps.ocp43sprintpwx.os.fyre.ibm.com/cpd -r repo.yaml --target-registry-username=kubeadmin  --target-registry-password=$(oc whoami -t) --insecure-skip-tls-verify --cluster-pull-prefix=image-registry.openshift-image-registry.svc:5000/cpd --accept-all-licenses --override ../override.yaml 
