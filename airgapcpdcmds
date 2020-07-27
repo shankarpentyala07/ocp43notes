@@ -1,0 +1,1 @@
+./cpd-linux preloadImages --repo repo.yaml --assembly lite --action download --download-path=./lite
