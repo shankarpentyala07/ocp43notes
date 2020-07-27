@@ -1,0 +1,35 @@
+JumpCloud: https://console.jumpcloud.com/login
+JumpCloud Administrator Login
+username: shankarpentyala@gmail.com
+password: $hankar07
+
+a) LDAP side verify details
+
+ldapsearch -x -W  -h ldap.jumpcloud.com -p 389 -D  "uid=shankpenty,ou=Users,o=5f1afbc9089cb14c6d89763c,dc=jumpcloud,dc=com" -b "ou=Users,o=5f1afbc9089cb14c6d89763c,dc=jumpcloud,dc=com"
+
+To enable usermgmt for ldap logs:
+1. Stop the current pods
+kubectl scale Deployment/usermgmt --replicas=0
+2. Change the default image policy
+kubectl edit Deployment/usermgmt
+ Change imagePullPolicy: IfNotPresent to imagePullPolicy: Always
+ Add variable:  DEBUG with value:  '*'
+3. Run an instance of the usrmgmt image (the tag/namespace may differ depending on CP4D version)
+docker rm --force "/ldap" > /dev/null 2>&1
+docker run -dit --name ldap --entrypoint tail default-route-openshift-image-registry.apps.ocp43shan.cp.fyre.ibm.com/cpd/privatecloud-usermgmt:v3.0.1.0-x86_64-45 -f /dev/null
+The registry name varies per cluster
+4. Perform changes inside of the docker container
+docker exec -it -u 0 ldap sh
+cd node_modules/ldapjs/lib/client/
+sed -i "s/stream: process.stderr,/stream: process.stderr,level: 'trace',/g" index.js
+exit
+5.Backup the original image (one line)
+docker tag default-route-openshift-image-registry.apps.ocp43shan.cp.fyre.ibm.com/cpd/privatecloud-usermgmt:v3.0.1.0-x86_64-45 default-route-openshift-image-registry.apps.ocp43shan.cp.fyre.ibm.com/cpd/privatecloud-usermgmt:v3.0.1.0-x86_64-45.org
+6.Push the modified image
+docker commit --change='ENTRYPOINT ["/startup.sh"]' ldap default-route-openshift-image-registry.apps.ocp43shan.cp.fyre.ibm.com/cpd/privatecloud-usermgmt:v3.0.1.0-x86_64-45
+docker push default-route-openshift-image-registry.apps.ocp43shan.cp.fyre.ibm.com/cpd/privatecloud-usermgmt:v3.0.1.0-x86_64-45
+7. Restore the deployment (use one replica for testing, then increase to 2)
+kubectl scale Deployment/usermgmt --replicas=1
+8. Monitor the logs:
+kubectl logs usermgmt-ff795bb8d-pxjrm  --since=1h -f
+9. scale back to 2
