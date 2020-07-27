@@ -4,7 +4,7 @@ username: shankarpentyala@gmail.com
 password: $hankar07
 
 a) LDAP side verify details
-
+yum install openldap-clients -y
 ldapsearch -x -W  -h ldap.jumpcloud.com -p 389 -D  "uid=shankpenty,ou=Users,o=5f1afbc9089cb14c6d89763c,dc=jumpcloud,dc=com" -b "ou=Users,o=5f1afbc9089cb14c6d89763c,dc=jumpcloud,dc=com"
 
 To enable usermgmt for ldap logs:
