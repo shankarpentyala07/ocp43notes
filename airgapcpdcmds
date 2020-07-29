@@ -1,1 +1,10 @@
 ./cpd-linux preloadImages --repo repo.yaml --assembly lite --action download --download-path=./lite
+
+./cpd-linux adm -a lite -n cp4d --repo ./repo.yaml --apply
+
+### Push command from local machine to local docker repo
+./cpd-linux preloadImages --action push --load-from=./lite --transfer-image-to=docker-registry.default.svc:5000/cp4d --target-registry-username=$(oc whoami) --target-registry-password=$(oc whoami -t) -a lite -v 3.0.1 --accept-all-licenses --insecure-skip-tls-verify
+
+### Install the services
+./cpd-linux -a lite -n cp4d -c nfs-storage-provisioner --load-from=./lite --cluster-pull-prefix=docker-registry.default.svc:5000/cp4d --cluster-pull-username=$(oc whoami) --cluster-pull-password=$(oc whoami -t) -v 3.0.1 --accept-all-licenses --insecure-skip-tls-verify
+
