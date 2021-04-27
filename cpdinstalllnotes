@@ -65,5 +65,7 @@ EOF
 
 oc create -f /tmp/51-worker-cp4d-crio-conf.yaml
 
+https://access.redhat.com/solutions/4717701
+
 https://github.ibm.com/PrivateCloud-analytics/Zen/issues/15790
 
