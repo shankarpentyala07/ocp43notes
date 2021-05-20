@@ -11,4 +11,14 @@ You can bypass the issue by doing the install via OLM/ODLM, which does not invol
 
 using a private registry for CP4D 4.0
 
+Install Bedrock and Zen Operator:
+https://github.ibm.com/PrivateCloud/zen-operator/wiki/Install-Bedrock-and-Zen-Operator
+
+
+Deploy Zen Operator using case:
+https://github.ibm.com/PrivateCloud/zen-operator/wiki/Deploy-zen-operator-using-CASE
+
+Zen-IAM Integration:
+https://github.ibm.com/PrivateCloud-analytics/zen-dev-test-utils/blob/gh-pages/docs/IAM-Zen-integration.md#getting-zen-token
+
 
