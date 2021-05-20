@@ -5,3 +5,10 @@ oc extract secret/admin-user-details --keys=initial_admin_password --to=-
 more background here: https://github.ibm.com/PrivateCloud-analytics/zen-dev-test-utils/blob/gh-pages/docs/IAM-Zen-integration.md
 
 
+Is there a way to install zen without bedrock?
+
+You can bypass the issue by doing the install via OLM/ODLM, which does not involve with case packages
+
+using a private registry for CP4D 4.0
+
+
