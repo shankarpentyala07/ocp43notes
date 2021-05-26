@@ -1,0 +1,32 @@
+
+
+1. OCS must-gather:
+
+ oc adm must-gather --image=registry.redhat.io/ocs4/ocs-must-gather-rhel8 --dest-dir="directory-name"
+
+
+
+https://access.redhat.com/documentation/en-us/red_hat_openshift_container_storage/4.5/html-single/troubleshooting_openshift_container_storage/index#downloading-log-files-and-diagnostic-information_rhocs
+
+
+
+2. OCS cluster-info:
+
+ oc cluster-info dump -n openshift-storage --output-directory="directory-name"
+
+
+
+3. Local Storage cluster-info:
+
+ oc cluster-info dump -n openshift-local-storage --output-directory="directory-name"
+
+
+
+4. OpenShift Must Gather
+
+ oc adm must-gather 
+
+
+
+https://docs.openshift.com/container-platform/4.6/support/gathering-cluster-data.html"
+
