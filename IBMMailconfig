@@ -1,0 +1,17 @@
+host: na.relay.ibm.com
+port: 25
+user: shankar.pentyala@ibm.com
+password: *********
+from: shankar.pentyala@ibm.com
+useTls: false
+
+Could you please make sure the user configuring the smtp server has a valid email address attached , what i mean by it is,After logging to cloud pak for data:
+Administration -> Usermanagement -> Users 
+Select the user (ex: admin) and make sure he has a valid email address attached:Could you please make sure the user configuring the smtp server has a valid email address attached , what i mean by it is,After logging to cloud pak for data:
+
+Administration -> Usermanagement -> Users 
+
+Select the user (ex: admin) and make sure he has a valid email address attached:
+
+
+https://github.ibm.com/PrivateCloud-analytics/Zen/issues/25005
