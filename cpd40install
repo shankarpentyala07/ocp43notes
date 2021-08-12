@@ -1,0 +1,14 @@
+CPD Installer:
+wget https://github.com/IBM/cloud-pak-cli/releases/download/v3.8.0/cloudctl-linux-amd64.tar.gz
+tar -xvf cloudctl-linux-amd64.tar.gz 
+cp cloudctl-linux-amd64 /usr/bin/cloudctl
+ cloudctl version
+ 
+ Bastion prereqs:
+ 
+yum install -y httpd-tools podman ca-certificates openssl skopeo jq bind-utils git
+yum -y install python3
+
+Setup NFS Provisioner:
+https://faun.pub/openshift-dynamic-nfs-persistent-volume-using-nfs-client-provisioner-fcbb8c9344e
+
