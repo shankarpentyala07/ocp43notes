@@ -216,5 +216,27 @@ Completed
 cpd-cpd-instance.apps.cpd40shan.cp.fyre.ibm.com
 
 
+DV Service Install:
+
+export OFFLINEDIR=/data/offline
+export CASE_REPO_PATH=https://github.com/IBM/cloud-pak/raw/master/repo/case
+export CLOUDCTL_TRACE=true # for extra logging
+export USE_SKOPEO=true
+
+cloudctl case save \
+--case ${CASE_REPO_PATH}/ibm-dv-case-1.7.0.tgz \
+--outputdir ${OFFLINEDIR}
+
+Skope copy Example:
+skopeo copy --all --authfile "/root/.airgap/auth.json" --dest-tls-verify=false --src-tls-verify=false docker://cp.icr.io/cp/db2u.instdb.restricted@sha256:087d81ab50e03ae459e3cefe4756dff5832750f9901819737c936cc6058d036e docker://localhost:5000/cp/db2u.instdb.restricted:11.5.6.0-3781-x86_64
+
+cloudctl case save \
+  --case ${CASE_REPO_PATH}/ibm-cp-datacore-2.0.0.tgz \
+  --no-dependency \
+  --tolerance=1 \
+  --outputdir ${OFFLINEDIR}   # --no-dependency flag to prevent downloading other assemblies
+  
+  
+  curl -k -u ${PRIVATE_REGISTRY_USER}:${PRIVATE_REGISTRY_PASSWORD} https://${PRIVATE_REGISTRY}/v2/_catalog?n=6000 |  python -m json.tool
 
   
