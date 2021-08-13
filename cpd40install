@@ -12,3 +12,70 @@ yum -y install python3
 Setup NFS Provisioner:
 https://faun.pub/openshift-dynamic-nfs-persistent-volume-using-nfs-client-provisioner-fcbb8c9344e
 
+
+CPD 4.0:
+mkdir -p /data/offline
+ export OFFLINEDIR=/data/offline
+ export CASE_REPO_PATH=https://github.com/IBM/cloud-pak/raw/master/repo/case
+export CLOUDCTL_TRACE=true 
+export USE_SKOPEO=true
+  112  export PORTABLE_REGISTRY_HOST=localhost
+  113  export PORTABLE_REGISTRY_PORT=5000
+  114  export PORTABLE_REGISTRY=$PORTABLE_REGISTRY_HOST:$PORTABLE_REGISTRY_PORT
+  115  export PORTABLE_REGISTRY_USER=admin
+  116  export PORTABLE_REGISTRY_PASSWORD=passw0rd
+  117  export PORTABLE_REGISTRY_PATH=$OFFLINEDIR/imageregistry
+  118  cloudctl case save   --case ${CASE_REPO_PATH}/ibm-cp-datacore-2.0.1.tgz   --outputdir ${OFFLINEDIR}   --no-dependency
+  119  ls /data/offline/
+  
+  
+  120  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --action configure-creds-airgap   --args "--registry cp.icr.io --user cp --pass eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJJQk0gTWFya2V0cGxhY2UiLCJpYXQiOjE1OTU3ODk1ODYsImp0aSI6IjU3YzYyZDVjODI0ODQwZjI4NDJiYTRlZmQ3NTc0MDdkIn0.caE_g3MOBxAOPHutF6u7V1-GHar_zU87DbLGpSMUPYM --inputDir ${OFFLINEDIR}"
+  121  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --action configure-creds-airgap   --args "--registry ${PORTABLE_REGISTRY} --user ${PORTABLE_REGISTRY_USER} --pass ${PORTABLE_REGISTRY_PASSWORD}"
+  122  ls $HOME/.airgap/secrets/
+  
+  123  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --action init-registry   --args "--registry ${PORTABLE_REGISTRY} --user ${PORTABLE_REGISTRY_USER} --pass ${PORTABLE_REGISTRY_PASSWORD} --dir ${OFFLINEDIR}/imageregistry"
+  124  export USE_SKOPEO=true
+  125  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --action start-registry   --args "--registry ${PORTABLE_REGISTRY} --user ${PORTABLE_REGISTRY_USER} --pass ${PORTABLE_REGISTRY_PASSWORD} --dir ${OFFLINEDIR}/imageregistry"
+  126  podman ps
+  
+  127  cloudctl case save --case ${CASE_REPO_PATH}/ibm-cp-common-services-1.4.1.tgz --outputdir ${OFFLINEDIR}
+  128  ls /data/offline/
+  129  ls /data/offline/imageregistry/
+  
+  130  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --action mirror-images   --args "--registry ${PORTABLE_REGISTRY} --inputDir ${OFFLINEDIR}"
+
+cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-common-services-1.4.1.tgz   --inventory ibmCommonServiceOperatorSetup   --action mirror-images   --args "--registry ${PORTABLE_REGISTRY} --user ${PORTABLE_REGISTRY_USER} --pass ${PORTABLE_REGISTRY_PASSWORD} --inputDir ${OFFLINEDIR}"
+
+
+[root@api.cpd40shan.cp.fyre.ibm.com ~]# cat <<EOF |oc apply -f -
+> apiVersion: operator.openshift.io/v1alpha1
+> kind: ImageContentSourcePolicy
+> metadata:
+>   name: cloud-pak-for-data-mirror
+> spec:
+>   repositoryDigestMirrors:
+>   - mirrors:
+>     - ${PRIVATE_REGISTRY}/opencloudio
+>     source: quay.io/opencloudio
+>   - mirrors:
+>     - ${PRIVATE_REGISTRY}/cp
+>     source: cp.icr.io/cp
+>   - mirrors:
+>     - ${PRIVATE_REGISTRY}/cp/cpd
+>     source: cp.icr.io/cp/cpd
+>   - mirrors:
+>     - ${PRIVATE_REGISTRY}/cpopen
+>     source: icr.io/cpopen
+> EOF
+
+[root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get  ImageContentSourcePolicy
+NAME                        AGE
+cloud-pak-for-data-mirror   2m2s
+
+Create Global Image Pull Secret:
+
+Create catalog source:
+cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-common-services-1.4.1.tgz   --inventory ibmCommonServiceOperatorSetup   --namespace openshift-marketplace   --action install-catalog   --args "--registry ${PRIVATE_REGISTRY} --inputDir ${OFFLINEDIR} --recursive"
+
+
+oc patch image.config.openshift.io/cluster --type=merge -p '{"spec":{"registrySources":{"insecureRegistries":["'${PRIVATE_REGISTRY}'"]}}}'
