@@ -79,3 +79,38 @@ cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-common-services-1.4.1.tgz   -
 
 
 oc patch image.config.openshift.io/cluster --type=merge -p '{"spec":{"registrySources":{"insecureRegistries":["'${PRIVATE_REGISTRY}'"]}}}'
+
+ cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --namespace openshift-marketplace   --action install-catalog   --args "--registry ${PRIVATE_REGISTRY} --inputDir ${OFFLINEDIR} --recursive"
+ 
+ cat <<EOF |oc apply -f -
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: operatorgroup
+  namespace: ibm-common-services
+spec:
+  targetNamespaces:
+  - ibm-common-services
+EOF
+
+
+cat <<EOF |oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-common-service-operator
+  namespace: ibm-common-services
+spec:
+  channel: v3
+  installPlanApproval: Automatic
+  name: ibm-common-service-operator
+  source: opencloud-operators
+  sourceNamespace: openshift-marketplace
+EOF
+
+
+oc get csv
+oc get crd | grep operandrequest
+oc api-resources --api-group operator.ibm.com
+
+
