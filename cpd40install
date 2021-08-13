@@ -82,6 +82,8 @@ oc patch image.config.openshift.io/cluster --type=merge -p '{"spec":{"registrySo
 
  cloudctl case launch   --case ${OFFLINEDIR}/ibm-cp-datacore-2.0.1.tgz   --inventory cpdPlatformOperator   --namespace openshift-marketplace   --action install-catalog   --args "--registry ${PRIVATE_REGISTRY} --inputDir ${OFFLINEDIR} --recursive"
  
+Common Services:
+
  cat <<EOF |oc apply -f -
 apiVersion: operators.coreos.com/v1alpha2
 kind: OperatorGroup
@@ -113,4 +115,106 @@ oc get csv
 oc get crd | grep operandrequest
 oc api-resources --api-group operator.ibm.com
 
+Cpd-operator:
+cat <<EOF |oc apply -f -
+apiVersion: operators.coreos.com/v1alpha2
+kind: OperatorGroup
+metadata:
+  name: operatorgroup
+  namespace: cpd-operators
+spec:
+  targetNamespaces:
+  - cpd-operators
+EOF
 
+
+cat <<EOF |oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cpd-operator
+  namespace: cpd-operators    # Pick the project that contains the Cloud Pak for Data operator
+spec:
+  channel: stable-v1
+  installPlanApproval: Automatic
+  name: cpd-platform-operator
+  source: cpd-platform
+  sourceNamespace: openshift-marketplace
+EOF
+
+
+Namespace Scope Operator
+
+If you are running a specialized installation (installing the IBM Cloud Pak for Data platform operator and the IBM Cloud Pak foundational services in separate projects), create an operator subscription for the IBM NamespaceScope Operator in the IBM Cloud Pak for Data platform operator project:
+cat <<EOF |oc apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-namespace-scope-operator
+  namespace: cpd-operators
+spec:
+  channel: v3
+  installPlanApproval: Automatic
+  name: ibm-namespace-scope-operator
+  source: opencloud-operators
+  sourceNamespace: openshift-marketplace
+EOF
+
+
+Update the IBM NamespaceScope Operator in the Cloud Pak for Data operators project to watch the project where you plan to install Cloud Pak for Data.
+
+Edit the namespaceMembers list to add the project where you plan to install Cloud Pak for Data. 
+For example, if you plan to install Cloud Pak for Data in the cpd-instance project, add that project to the list:
+
+cat <<EOF |oc apply -f -
+apiVersion: operator.ibm.com/v1
+kind: NamespaceScope
+metadata:
+  name: cpd-operators
+  namespace: cpd-operators        # (Default) Replace with the Cloud Pak for Data platform operator project name 
+spec:
+  namespaceMembers:
+  - cpd-operators                 # (Default) Replace with the Cloud Pak for Data platform operator project name
+  - cpd-instance                  # Replace with the project where you will install Cloud Pak for Data
+EOF
+
+
+Cloud pak for data install:
+cat ibmcp-cr.yaml 
+apiVersion: cpd.ibm.com/v1
+kind: Ibmcpd
+metadata:
+  name: ibmcpd-cr      
+  namespace: cpd-instance                  
+spec:
+  license:
+    accept: true
+    license: Enterprise                          
+  storageClass: managed-nfs-storage
+  zenCoreMetadbStorageClass: managed-nfs-storage  
+  version: "4.0.1"
+  
+  oc create -f ibmcp-cr.yaml
+  
+  oc logs cpd-platform-operator-manager-5598f744c-g6zc4 -n cpd-operators -f
+  
+  oc logs ibm-zen-operator-5558bfcf4d-2mdgs -f -n ibm-common-services
+  
+  [root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get ibmcpd
+NAME        AGE
+ibmcpd-cr   15m
+[root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get zenservice
+NAME      AGE
+lite-cr   11m
+
+oc get ZenService lite-cr -o jsonpath="{.status.zenStatus}{'\n'}"
+
+
+[root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get ZenService lite-cr -o jsonpath="{.status.zenStatus}{'\n'}"
+Completed
+[root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get ZenService lite-cr -o jsonpath="{.status.url}{'\n'}"
+cpd-cpd-instance.apps.cpd40shan.cp.fyre.ibm.com
+
+
+
+  
