@@ -215,6 +215,15 @@ Completed
 [root@api.cpd40shan.cp.fyre.ibm.com ~]# oc get ZenService lite-cr -o jsonpath="{.status.url}{'\n'}"
 cpd-cpd-instance.apps.cpd40shan.cp.fyre.ibm.com
 
+Get the initial password for the admin user:
+oc extract secret/admin-user-details --keys=initial_admin_password --to=-
+
+Troubleshooting
+oc logs $(oc get po -n cpd-operators| grep cpd-platform-operator-manager | awk '{print $1}')  -n cpd-operators
+
+oc get operandrequest
+
+
 
 DV Service Install:
 
