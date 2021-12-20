@@ -1,0 +1,45 @@
+The backup.sh script:
+
+
+
+ cat backup.sh 
+
+oc get nodes > backup+$(date +%s)
+
+
+
+and output of crontab -l
+
+[root@ocp4520-inf ~]# crontab -l
+
+SHELL=/bin/bash
+
+MAILTO=shankarpentyala@gmail.com
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
+* * * * * /root/backup.sh
+
+
+
+The cronjob ran as expected and the results are:
+
+[root@ocp4520-inf ~]# cat backup+1639771381
+
+NAME               STATUS  ROLES  AGE  VERSION
+
+master0.ocp4520.cp.****** Ready  master  375d  v1.19.0+4c3480d
+
+master1.ocp4520.cp.**** Ready  master  375d  v1.19.0+4c3480d
+
+master2.ocp4520.cp****** Ready  master  375d  v1.19.0+4c3480d
+
+worker0.ocp4520.cp.***** Ready  worker  375d  v1.19.0+4c3480d
+
+worker1.ocp4520.cp.**** Ready  worker  375d  v1.19.0+4c3480d
+
+worker2.ocp4520.cp.****  Ready  worker  375d  v1.19.0+4c3480d
+
+
+
+ setting the PATH variable as PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
