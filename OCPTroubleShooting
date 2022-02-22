@@ -30,3 +30,8 @@ https://access.redhat.com/documentation/en-us/red_hat_openshift_container_storag
 
 https://docs.openshift.com/container-platform/4.6/support/gathering-cluster-data.html"
 
+
+5.OCP cheatsheet:
+oc debug node/<node> -- chroot /host cat /etc/containers/policy.json
+$ oc debug node/<node> -- chroot /host cat /etc/containers/registries.d/registry.redhat.io.yaml
+$ oc debug node/<node> -- chroot /host cat /etc/containers/registries.d/registry.access.redhat.com.yaml
